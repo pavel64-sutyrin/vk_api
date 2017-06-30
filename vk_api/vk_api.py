@@ -39,6 +39,7 @@ RE_PHONE_POSTFIX = re.compile(r'phone_postfix">.*?(\d+).*?<')
 class VkApi(object):
     def __init__(self, login=None, password=None, token=None,
                  auth_handler=None, captcha_handler=None,
+                 proxies=None,
                  config=jconfig.Config, config_filename='vk_config.v2.json',
                  api_version='5.63', app_id=2895443, scope=33554431,
                  client_secret=None):
@@ -79,6 +80,7 @@ class VkApi(object):
         self.settings = config(self.login, filename=config_filename)
 
         self.http = requests.Session()
+        self.http.proxies = proxies
         self.http.headers.update({
             'User-agent': 'Mozilla/5.0 (Windows NT 6.1; rv:40.0) '
             'Gecko/20100101 Firefox/40.0'
