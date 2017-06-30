@@ -11,3 +11,4 @@ testing/
 tests/
 vk_config.json
 vk_config.v2.json
+vk_api.egg-info
