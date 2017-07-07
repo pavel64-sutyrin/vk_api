@@ -53,7 +53,7 @@ class LoggingSession(requests.Session):
             except ValueError:
                 response_json = None
             if response_json and 'response' in response_json and type(response_json['response']) is not dict:
-                response_json['response'] = {'non_dict_response': str(response_json['response'])}
+                response_json['response'] = {'text_response': str(response_json['response'])}
             vkmad = dict(
                 user_id=self.user_id,
                 vk_account_id=self.vk_account_id,
@@ -82,7 +82,7 @@ class LoggingSession(requests.Session):
             except ValueError:
                 response_json = None
             if response_json and 'response' in response_json and type(response_json['response']) is not dict:
-                response_json['response'] = {'non_dict_response': str(response_json['response'])}
+                response_json['response'] = {'text_response': str(response_json['response'])}
             vkmad = dict(
                 user_id=self.user_id,
                 vk_account_id=self.vk_account_id,
