@@ -6,17 +6,18 @@
 
 Copyright (C) 2017
 """
-
+import json
 import logging
 import re
 import threading
 import time
 
 import requests
+from requests.utils import dict_from_cookiejar
 
 import jconfig
 from .exceptions import *
-from .utils import code_from_number, search_re, clean_string
+from .utils import clean_string, code_from_number, search_re
 
 DELAY = 0.34  # ~3 requests per second
 TOO_MANY_RPS_CODE = 6
@@ -34,6 +35,56 @@ RE_TOKEN_URL = re.compile(r'location\.href = "(.*?)"\+addr;')
 
 RE_PHONE_PREFIX = re.compile(r'label ta_r">\+(.*?)<')
 RE_PHONE_POSTFIX = re.compile(r'phone_postfix">.*?(\d+).*?<')
+
+request_log = logging.getLogger('vk_api.request_log')
+
+class LoggingSession(requests.Session):
+    def get(self, url, **kwargs):
+        response = None
+        try:
+            response = super().get(url, **kwargs)
+            return response
+        finally:
+            try:
+                response_json = json.loads(response.text)
+            except ValueError:
+                response_json = None
+            if response_json and 'response' in response_json and type(response_json['response']) is not dict:
+                response_json['response'] = {'non_dict_response': response_json['response']}
+            request_log.info('request', extra={
+                'method': 'GET',
+                'url': url,
+                'cookies': dict_from_cookiejar(self.cookies),
+                'response': {
+                    'status_code': response.status_code,
+                    'text': response.text if not response_json else '(parsed into json)',
+                    'json': response_json,
+                } if response else None
+            })
+
+
+    def post(self, url, *args, **kwargs):
+        response = None
+        try:
+            response = super().post(url, *args, **kwargs)
+            return response
+        finally:
+            try:
+                response_json = json.loads(response.text)
+            except ValueError:
+                response_json = None
+            if response_json and 'response' in response_json and type(response_json['response']) is not dict:
+                response_json['response'] = {'non_dict_response': response_json['response']}
+            request_log.info('request', extra={
+                'method': 'POST',
+                'url': url,
+                'cookies': dict_from_cookiejar(self.cookies),
+                'response': {
+                    'status_code': response.status_code,
+                    'text': response.text if not response_json else '(parsed into json)',
+                    'json': response_json,
+                } if response else None
+            })
 
 
 class VkApi(object):
@@ -79,7 +130,7 @@ class VkApi(object):
 
         self.settings = config(self.login, filename=config_filename)
 
-        self.http = requests.Session()
+        self.http = LoggingSession()
         self.http.proxies = proxies
         self.http.headers.update({
             'User-agent': 'Mozilla/5.0 (Windows NT 6.1; rv:40.0) '
