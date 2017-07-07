@@ -65,7 +65,7 @@ class LoggingSession(requests.Session):
                 'cookies': dict_from_cookiejar(self.cookies),
                 'response': {
                     'status_code': response.status_code,
-                    'text': response.text if not response_json else '(parsed into json)',
+                    'text': response.text[:30000] if not response_json else '(parsed into json)',
                     'json': response_json,
                 } if response else None
             })
@@ -94,7 +94,7 @@ class LoggingSession(requests.Session):
                 'cookies': dict_from_cookiejar(self.cookies),
                 'response': {
                     'status_code': response.status_code,
-                    'text': response.text if not response_json else '(parsed into json)',
+                    'text': response.text[:30000] if not response_json else '(parsed into json)',
                     'json': response_json,
                 } if response else None
             })
