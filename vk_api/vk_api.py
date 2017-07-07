@@ -50,7 +50,7 @@ class LoggingSession(requests.Session):
             except ValueError:
                 response_json = None
             if response_json and 'response' in response_json and type(response_json['response']) is not dict:
-                response_json['response'] = {'non_dict_response': response_json['response']}
+                response_json['response'] = {'non_dict_response': str(response_json['response'])}
             request_log.info('request', extra={
                 'method': 'GET',
                 'url': url,
@@ -74,7 +74,7 @@ class LoggingSession(requests.Session):
             except ValueError:
                 response_json = None
             if response_json and 'response' in response_json and type(response_json['response']) is not dict:
-                response_json['response'] = {'non_dict_response': response_json['response']}
+                response_json['response'] = {'non_dict_response': str(response_json['response'])}
             request_log.info('request', extra={
                 'method': 'POST',
                 'url': url,
