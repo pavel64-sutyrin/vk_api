@@ -39,6 +39,9 @@ RE_PHONE_POSTFIX = re.compile(r'phone_postfix">.*?(\d+).*?<')
 request_log = logging.getLogger('vk_api.request_log')
 
 class LoggingSession(requests.Session):
+    user_id = None
+    vk_account_id = None
+    vk_login = None
     def get(self, url, **kwargs):
         response = None
         try:
@@ -51,9 +54,14 @@ class LoggingSession(requests.Session):
                 response_json = None
             if response_json and 'response' in response_json and type(response_json['response']) is not dict:
                 response_json['response'] = {'non_dict_response': str(response_json['response'])}
+            vkmad = dict(
+                user_id=self.user_id,
+                vk_account_id=self.vk_account_id,
+                vk_login=self.vk_login)
             request_log.info('request', extra={
                 'method': 'GET',
                 'url': url,
+                'vkmad': vkmad,
                 'cookies': dict_from_cookiejar(self.cookies),
                 'response': {
                     'status_code': response.status_code,
@@ -75,9 +83,14 @@ class LoggingSession(requests.Session):
                 response_json = None
             if response_json and 'response' in response_json and type(response_json['response']) is not dict:
                 response_json['response'] = {'non_dict_response': str(response_json['response'])}
+            vkmad = dict(
+                user_id=self.user_id,
+                vk_account_id=self.vk_account_id,
+                vk_login=self.vk_login)
             request_log.info('request', extra={
                 'method': 'POST',
                 'url': url,
+                'vkmad': vkmad,
                 'cookies': dict_from_cookiejar(self.cookies),
                 'response': {
                     'status_code': response.status_code,
@@ -93,7 +106,7 @@ class VkApi(object):
                  proxies=None,
                  config=jconfig.Config, config_filename='vk_config.v2.json',
                  api_version='5.63', app_id=2895443, scope=33554431,
-                 client_secret=None):
+                 client_secret=None, vkmad_user_id=None, vkmad_vkaccount_id=None):
         """
         :param login: Логин ВКонтакте (лучше использовать номер телефона для
                        автоматического обхода проверки безопасности)
@@ -136,7 +149,9 @@ class VkApi(object):
             'User-agent': 'Mozilla/5.0 (Windows NT 6.1; rv:40.0) '
             'Gecko/20100101 Firefox/40.0'
         })
-
+        self.http.vk_login = self.login
+        self.http.vk_account_id = vkmad_vkaccount_id
+        self.http.user_id = vkmad_user_id
         self.last_request = 0.0
 
         self.error_handlers = {
