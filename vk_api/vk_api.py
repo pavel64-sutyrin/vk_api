@@ -44,14 +44,16 @@ class LoggingSession(requests.Session):
     vk_login = None
     def get(self, url, **kwargs):
         response = None
+        response_json = None
         try:
             response = super().get(url, **kwargs)
             return response
         finally:
-            try:
-                response_json = json.loads(response.text)
-            except ValueError:
-                response_json = None
+            if response:
+                try:
+                    response_json = json.loads(response.text)
+                except ValueError:
+                    pass
             if response_json and 'response' in response_json and type(response_json['response']) is not dict:
                 response_json['response'] = {'text_response': str(response_json['response'])}
             vkmad = dict(
@@ -73,14 +75,16 @@ class LoggingSession(requests.Session):
 
     def post(self, url, *args, **kwargs):
         response = None
+        response_json = None
         try:
             response = super().post(url, *args, **kwargs)
             return response
         finally:
-            try:
-                response_json = json.loads(response.text)
-            except ValueError:
-                response_json = None
+            if response:
+                try:
+                    response_json = json.loads(response.text)
+                except ValueError:
+                    pass
             if response_json and 'response' in response_json and type(response_json['response']) is not dict:
                 response_json['response'] = {'text_response': str(response_json['response'])}
             vkmad = dict(
