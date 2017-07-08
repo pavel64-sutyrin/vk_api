@@ -97,6 +97,7 @@ class LoggingSession(requests.Session):
             self.request_log.info('request', extra={
                 'method': 'POST',
                 'url': url,
+                'post_data': str(args[0]) if args else None,
                 'vkmad': vkmad,
                 'cookies': dict_from_cookiejar(self.cookies),
                 'response': {
