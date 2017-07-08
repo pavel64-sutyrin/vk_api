@@ -36,12 +36,15 @@ RE_TOKEN_URL = re.compile(r'location\.href = "(.*?)"\+addr;')
 RE_PHONE_PREFIX = re.compile(r'label ta_r">\+(.*?)<')
 RE_PHONE_POSTFIX = re.compile(r'phone_postfix">.*?(\d+).*?<')
 
-request_log = logging.getLogger('vk_api.request_log')
-
 class LoggingSession(requests.Session):
     user_id = None
     vk_account_id = None
     vk_login = None
+
+    def __init__(self):
+        super().__init__()
+        self.request_log = logging.getLogger('vk_api.request_log')
+
     def get(self, url, **kwargs):
         response = None
         response_json = None
@@ -60,7 +63,7 @@ class LoggingSession(requests.Session):
                 user_id=self.user_id,
                 vk_account_id=self.vk_account_id,
                 vk_login=self.vk_login)
-            request_log.info('request', extra={
+            self.request_log.info('request', extra={
                 'method': 'GET',
                 'url': url,
                 'vkmad': vkmad,
@@ -91,7 +94,7 @@ class LoggingSession(requests.Session):
                 user_id=self.user_id,
                 vk_account_id=self.vk_account_id,
                 vk_login=self.vk_login)
-            request_log.info('request', extra={
+            self.request_log.info('request', extra={
                 'method': 'POST',
                 'url': url,
                 'vkmad': vkmad,
